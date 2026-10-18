@@ -159,10 +159,10 @@ type
     Fbetg: Extended;
     Fkanavka: word;
     Fmc1, Fmc2, Fmc3, Fmc5: TSteelMark;
-    FTermobr: byte;
+    FTermobr1, FTermobr2, FTermobr3, FTermobr5: byte;
     FImprovStrength: array [1 .. 4] of boolean;
     FZagotowka: TTwoWord;
-    FRa: word;
+    FRa1, FRa2, FRa3, FRa5: word;
     FWikrugka: TTwoWord;
     FNom_sx: byte;
     FPsi_ba: Extended;
@@ -446,20 +446,20 @@ type
     property Tipz: word read FTipz write SetTipz;
     property betg: Extended read Fbetg write Setbetg;
     property kanavka: word read Fkanavka write Setkanavka;
-    property mc1: TSteelMark read Fmc1 write Setmc;
-    property mc2: TSteelMark read Fmc2 write Setmc;
-    property mc3: TSteelMark read Fmc2 write Setmc;
-    property mc5: TSteelMark read Fmc2 write Setmc;
-    property Termobr1: byte read FTermobr write SetTermobr;
-    property Termobr2: byte read FTermobr write SetTermobr;
-    property Termobr3: byte read FTermobr write SetTermobr;
-    property Termobr5: byte read FTermobr write SetTermobr;
+    property mc1: TSteelMark read Fmc1 write Fmc1;
+    property mc2: TSteelMark read Fmc2 write Fmc2;
+    property mc3: TSteelMark read Fmc3 write Fmc3;
+    property mc5: TSteelMark read Fmc5 write Fmc5;
+    property Termobr1: byte read FTermobr1 write FTermobr1;
+    property Termobr2: byte read FTermobr2 write FTermobr2;
+    property Termobr3: byte read FTermobr3 write FTermobr3;
+    property Termobr5: byte read FTermobr5 write FTermobr5;
     // property ImprovStrength: array [1..2] of boolean read FImprovStrength write SetImprovStrength;
     // property Zagotowka:TTwoWord read FZagotowka write SetZagotowka;
-    property Ra1: word read FRa write SetRa;
-    property Ra2: word read FRa write SetRa;
-    property Ra3: word read FRa write SetRa;
-    property Ra5: word read FRa write SetRa;
+    property Ra1: word read FRa1 write FRa1;
+    property Ra2: word read FRa2 write FRa2;
+    property Ra3: word read FRa3 write FRa3;
+    property Ra5: word read FRa5 write FRa5;
     // property Wikrugka:TTwoWord read FWikrugka write SetWikrugka;
     property Nom_sx: byte read FNom_sx write SetNom_sx;
     property Psi_ba: Extended read FPsi_ba write SetPsi_ba;
@@ -702,7 +702,12 @@ begin
   Output.Fv := Fv; { Суммарное давление на вал }
   Output.epsias := epsias; { суммарный к-т перекрытия }
   Output.alfatw := alfatw; { угол зацепления зубчатых колес }
-  Output.Uf := Uf; { Фактическое передаточное число передачи }
+  { Фактическое передаточное число планетарной передачи (при остановленном колесе 3) }
+  if z1 > 0 then
+    Output.Uf := 1 + z3 / z1
+  else
+    Output.Uf := Uf;
+
   Output.n2 := n2; { Частота вращения колеса }
   Output.V := V; { Скорость, м/с }
   Output.Da1 := Da1;
@@ -872,7 +877,7 @@ end;
 
 procedure CalculateCWheel.SetRa(const Value: word);
 begin
-  FRa := Value;
+  FRa1 := Value;
 end;
 
 procedure CalculateCWheel.Setrewers(const Value: boolean);
@@ -882,14 +887,14 @@ end;
 
 procedure CalculateCWheel.SetTermobr(const Value: byte);
 begin
-  FTermobr := Value;
+  FTermobr1 := Value;
 end;
 
 procedure CalculateCWheel.SetTipz(const Value: word);
 begin
-  if (Value < UMin) or (Value > UMax) then
+  if (Value < TipzMin) or (Value > TipzMax) then
     raise ERangeError.CreateFmt
-      ('[CalculateCWheel.SetTipz] Тип зубьев (Tipz) не может быть равно %g, допустимый диапазон от %g до %g',
+      ('[CalculateCWheel.SetTipz] Тип зубьев (Tipz) не может быть равно %d, допустимый диапазон от %d до %d',
       [Value, TipzMin, TipzMax])
   else
     FTipz := Value;
@@ -919,7 +924,7 @@ procedure CalculateCWheel.SetZw(const Value: byte);
 begin
   if (Value < ZwMin) or (Value > ZwMax) then
     raise ERangeError.CreateFmt
-      ('[CalculateCWheel.SetZw] Число колес (Zw) не может быть равно %g, допустимый диапазон от %g до %g',
+      ('[CalculateCWheel.SetZw] Число колес (Zw) не может быть равно %d, допустимый диапазон от %g до %g',
       [Value, ZwMin, ZwMax])
   else
     FZw := Value;
@@ -1216,6 +1221,8 @@ BEGIN
         else
           betg := 10;
       end;
+      Possible[1] := -1;
+      Possible[2] := -1;
       Possible[3] := -1;
       if BISTR then
         if H_HBp2 <= 350 then
@@ -1244,6 +1251,11 @@ BEGIN
                   Possible[2] := 0.5;
                   Possible[3] := 0.63;
                 end;
+            else // 4, 6
+              begin
+                Possible[1] := 0.315;
+                Possible[2] := 0.4;
+              end;
             end
         else if Tipz = 3 then
         begin
@@ -1264,6 +1276,17 @@ BEGIN
                 Possible[1] := 0.25;
                 Possible[2] := 0.315;
               end;
+            7:
+              begin
+                Possible[1] := 0.315;
+                Possible[2] := 0.4;
+                Possible[3] := 0.5;
+              end;
+          else // 4, 6
+            begin
+              Possible[1] := 0.25;
+              Possible[2] := 0.315;
+            end;
           end
       else if H_HBp2 <= 350 then
         if Tipz = 3 then
@@ -1285,6 +1308,11 @@ BEGIN
                 Possible[2] := 1;
                 Possible[3] := 1.25;
               end;
+          else
+            begin
+              Possible[1] := 0.63;
+              Possible[2] := 0.8;
+            end;
           end
         else
           case Nom_sx of
@@ -1311,6 +1339,12 @@ BEGIN
                 Possible[2] := 0.8;
                 Possible[3] := 1;
               end;
+          else // 3
+            begin
+              Possible[1] := 0.5;
+              Possible[2] := 0.68;
+              Possible[3] := 0.8;
+            end;
           end
       else if Tipz = 3 then
         case Nom_sx of
@@ -1331,6 +1365,11 @@ BEGIN
               Possible[2] := 0.8;
               Possible[3] := 1;
             end;
+        else
+          begin
+            Possible[1] := 0.5;
+            Possible[2] := 0.63;
+          end;
         end
       else
         case Nom_sx of
@@ -1357,6 +1396,11 @@ BEGIN
               Possible[2] := 0.63;
               Possible[3] := 0.8;
             end;
+        else // 3
+          begin
+            Possible[1] := 0.4;
+            Possible[2] := 0.5;
+          end;
         end;
       for CWC := 1 to 3 do
         if Possible[CWC] > 0 then
@@ -1367,12 +1411,12 @@ BEGIN
             Error := 0;
             rac4et;
 
-            if (z1+z2)*cos(alfatw)<>(z1+z2)*cos(alfatw) then   // условие соосности
-              exit;
-            if ((z1 mod zw)<>0) and ((z2 mod zw)<>0) then // условие сборки
-              exit;
-            if aw*sin(Pi/zw)<0.5*Da2 then // условие соседства
-              exit;
+            // условие сборки: (z1 + z3) должно делиться на число сателлитов
+            if (Error = 0) and (Zw > 1) and (((z1 + z3) mod Zw) <> 0) then
+              Error := 30;
+            // условие соседства: сателлиты не должны задевать друг друга
+            if (Error = 0) and (Zw > 1) and (aw * sin(Pi / Zw) <= 0.5 * Da2) then
+              Error := 31;
 
             if Error = 0 then
             begin
@@ -1401,7 +1445,12 @@ var
 begin
   i3 := 1;
   mascount := 0;
+  SetLength(masOutput, 0);
+  SetLength(masInput, 0);
+  FillChar(ArTermobr1, SizeOf(ArTermobr1), 0);
+  FillChar(ArTermobr2, SizeOf(ArTermobr2), 0);
   ParamToRec(Input);
+
   if Termobr1 = 0 then
   begin
     wiborTerm(mc1, ArTermobr1);
@@ -1414,6 +1463,19 @@ begin
   end
   else
     ArTermobr2[1] := Termobr2;
+  // для колес 3 и 5 при автовыборе берется первая допустимая термообработка
+  if Termobr3 = 0 then
+  begin
+    FillChar(ArTermobr3, SizeOf(ArTermobr3), 0);
+    wiborTerm(mc3, ArTermobr3);
+    Termobr3 := ArTermobr3[1];
+  end;
+  if Termobr5 = 0 then
+  begin
+    FillChar(ArTermobr5, SizeOf(ArTermobr5), 0);
+    wiborTerm(mc5, ArTermobr5);
+    Termobr5 := ArTermobr5[1];
+  end;
   repeat
     if ArTermobr1[i3] <> 0 then
     begin
@@ -1422,7 +1484,7 @@ begin
       repeat
         if ArTermobr2[i4] <> 0 then
         begin
-          Termobr2 := ArTermobr1[i4];
+          Termobr2 := ArTermobr2[i4];
           MakeVersions;
         end;
         inc(i4)
@@ -1490,9 +1552,11 @@ BEGIN
       aw := aw * Exp(0.666 * Ln(Sigma_H / Sigma_Hp));
     if otw1 then
     begin
-      inc(IAw);
+      if IAw < 32 then
+        inc(IAw);
       aw := Aws[IAw];
     end;
+    Mn := 0; // модуль пересчитывается под новое межосевое расстояние
     Metka := 2;
     PzubC3;
   End;
@@ -1503,9 +1567,11 @@ BEGIN
       aw := aw * Exp(0.666 * Ln(Sigma_Hmax / Sigma_Hpmax));
     if otw1 then
     begin
-      IAw := IAw + 1;
+      if IAw < 32 then
+        inc(IAw);
       aw := Aws[IAw];
     end;
+    Mn := 0; // модуль пересчитывается под новое межосевое расстояние
     Metka := 2;
     PzubC3;
   End;
@@ -1513,14 +1579,16 @@ BEGIN
   { Проверка по изгибным напряжениям }
   If ((Sigma_F1 > Sigma_Fp1) or (Sigma_F2 > Sigma_Fp2)) then
   Begin
-    Imn := Imn + 1;
+    if Imn < 41 then
+      Imn := Imn + 1;
     Mn := ms[Imn];
     Metka := 3;
     PzubC3;
   End;
   If ((Sigma_Fmax1 > Sigma_Fpmax1) or (Sigma_Fmax2 > Sigma_Fpmax2)) then
   Begin
-    Imn := Imn + 1;
+    if Imn < 41 then
+      Imn := Imn + 1;
     Mn := ms[Imn];
     Metka := 3;
     PzubC3;
@@ -1649,10 +1717,17 @@ Var
   Termobr: Extended;
 
 BEGIN
-  if Target = 1 then
-    Termobr := Termobr1
+  { Target - номер колеса: 1 - шестерня, 2 - сателлит, 3 - колесо, 4 - второе колесо }
+  case Target of
+    1:
+      Termobr := Termobr1;
+    2:
+      Termobr := Termobr2;
+    3:
+      Termobr := Termobr3;
   else
-    Termobr := Termobr2;
+    Termobr := Termobr5;
+  end;
   if (Wikrugka[Target] <> 0) or not(Termobr > 2) then
     qF := 6
   else
@@ -1699,10 +1774,18 @@ begin
     параметром со знчениями 0, 10, 25 }
   kanavka := Input.kanavka; { Для шевронных колес при наличии канавки = 1,
     при отсутствии канавки =0 }
-  mc1 := Input.mc1; { марка стали для шестерни }   { ???????????????? }
-  mc2 := Input.mc2; { марка стали для колеса }     { ?????????????????? }
+  mc1 := Input.mc1; { марка стали для шестерни }
+  mc2 := Input.mc2; { марка стали для сателлита }
+  mc3 := Input.mc3; { марка стали для колеса }
+  mc5 := Input.mc5; { марка стали для второго колеса }
   Termobr1 := Input.Termobr1; { термообработка зуба шестерни, номер }
-  Termobr2 := Input.Termobr2; { термообработка зуба колеса, номер }
+  Termobr2 := Input.Termobr2; { термообработка зуба сателлита, номер }
+  Termobr3 := Input.Termobr3; { термообработка зуба колеса, номер }
+  Termobr5 := Input.Termobr5; { термообработка зуба второго колеса, номер }
+  ImprovStrength[1] := Input.ImprovStrength[1];
+  ImprovStrength[2] := Input.ImprovStrength[2];
+  ImprovStrength[3] := Input.ImprovStrength[3];
+  ImprovStrength[4] := Input.ImprovStrength[4];
   Zagotowka := Input.Zagotowka;
   { Способ получения заготовки шестерни и колеса
     = 1 для поковок
@@ -1710,12 +1793,16 @@ begin
     = 3 для проката
     = 4 для отливок }
   Ra1 := Input.Ra1; { Шероховатость боковой поверхности зуба шестерни }
-  Ra2 := Input.Ra2; { Шероховатость боковой поверхности зуба колеса }
+  Ra2 := Input.Ra2; { Шероховатость боковой поверхности зуба сателлита }
+  Ra3 := Input.Ra3; { Шероховатость боковой поверхности зуба колеса }
+  Ra5 := Input.Ra5; { Шероховатость боковой поверхности зуба второго колеса }
   Wikrugka := Input.Wikrugka;
   { Финишная обработка выкружки зуба
     = 0 выкружка зубофрезерована или шлифована
     = 1 при полировании выкружки }
   Nom_sx := Input.Nom_sx;
+  Zw := Input.Zw; { Число сателлитов }
+
   Psi_ba := Input.Psi_ba; { Коффициент ширины венца,
     при фиксированном значении вводится из стандартного
     ряда в зависимости от схемы передачи;
@@ -1814,10 +1901,10 @@ BEGIN
     Yr := 1
   else
     case Termobr of
-      1 .. 3:
-        Yr := 1.2;
       4 .. 7:
         Yr := 1.05;
+    else
+      Yr := 1.2;
     end;
   N_sum := 60 * N * Lh * Zw;
   N_Fe := Mu_F * N_sum;
@@ -1837,20 +1924,20 @@ BEGIN
     Ya := 1
   else
     Case Termobr of
-      1, 2:
-        Ya := 0.65;
       3, 4, 5, 6:
         Ya := 0.75;
       7:
         Ya := 0.9
+    else
+      Ya := 0.65;
     end;
   Case Zagotowka of
     0, 1:
       Yz := 1;
     2:
       Yz := 0.9;
-    3:
-      Yz := 0.8
+  else
+    Yz := 0.8; // прокат, отливка
   end;
   If Da = 0 then
     Sigma_Fp := 0.4 * Sigma_Flim0 * Yn * Ya
@@ -2167,14 +2254,12 @@ BEGIN
     Zr := 0.9;
 
   Case Termobr of
-    1, 2, 3:
-      Sh := 1.1;
     4, 5, 6, 7:
       Sh := 1.2
+  else
+    Sh := 1.1;
   end;
   Case Termobr of
-    1, 2:
-      Sigma_Hlim := 2 * H_HBp + 70;
     3:
       Sigma_Hlim := 1.8 * H_HBp + 150;
     4:
@@ -2183,6 +2268,8 @@ BEGIN
       Sigma_Hlim := 2.3 * H_HBp;
     7:
       Sigma_Hlim := 1050;
+  else
+    Sigma_Hlim := 2 * H_HBp + 70; // улучшение, нормализация, отжиг
   End;
   N_Hlim := 30 * Exp(2.4 * Ln(H_HBp));
   if N_Hlim > 12E7 then
@@ -2233,20 +2320,20 @@ var
 
 BEGIN
   Case Termobr of
-    1, 2, 3:
-      Sigma_Hpmax := 2.8 * Sigma_t;
     4, 5, 6:
       Sigma_Hpmax := 44 * H_HRcp;
     7:
       Sigma_Hpmax := 3 * H_HVp
+  else
+    Sigma_Hpmax := 2.8 * Sigma_t;
   end;
   Case Zagotowka of
     0, 1:
       Yz := 1;
     2:
       Yz := 0.9;
-    3:
-      Yz := 0.8
+  else
+    Yz := 0.8; // прокат, отливка
   end;
   S_Fst := Yz * 1.75;
   Yx := 1.05 - 0.000125 * Da;
@@ -2287,7 +2374,8 @@ BEGIN
     Sigma_Flim02, rewers, Termobr2, Zagotowka[2], Wikrugka[2], Zw, Sigma_Fp2);
   PrSigFp(Da3, Mn, Mu_F(3), n2, S_f3, Y_d3, Y_g3, trunc(Lh), H_HBp3,
     Sigma_Flim03, rewers, Termobr3, Zagotowka[3], Wikrugka[3], Zw, Sigma_Fp3);
-  PrSigFp(Da5, Mn, Mu_F(5), n2, S_f5, Y_d5, Y_g5, trunc(Lh), H_HBp5,
+  PrSigFp(Da5, Mn, Mu_F(4), n2,
+ S_f5, Y_d5, Y_g5, trunc(Lh), H_HBp5,
     Sigma_Flim05, rewers, Termobr5, Zagotowka[4], Wikrugka[4], Zw, Sigma_Fp5);
 
   PrSigMax(Sigma_t1, H_HRcp1, H_HVp1, Sigma_Fst01, Da1, Zagotowka[1], Termobr1,
@@ -2309,6 +2397,7 @@ Var
   AA, BB, Psi_bd, A_w, M_n, T_He2: Extended;
   K_a, Ze, K_ma: integer;
   Procedure Proced1;
+
   BEGIN
     If H_HBp3 < 350 then
       Case Nom_sx of
@@ -2433,21 +2522,51 @@ Var
       M_n := Mn;
     If M_n > 25 then
       Error := 5;
-    Wibor(M_n, ms, 41, Imn);
+    // ближайший стандартный модуль, не превышающий расчетный,
+    // чтобы зубчатая пара поместилась в межосевое расстояние
+    Imn := 1;
+    while (Imn < 41) and (ms[Imn + 1] <= M_n) do
+      inc(Imn);
     if Imn < 5 then
       Imn := 5;
     Mn := ms[Imn];
   end;
+  Procedure Proced0;
+  var
+    k: integer;
+  BEGIN
+
+    { Числа зубьев колес }
+    z3 := Round(z1 * (U - 1));
+    if z3 <= z1 + 1 then
+    begin
+      // передаточное число слишком мало для планетарной передачи
+      Error := 7;
+      Exit;
+    end;
+    z2 := Round(0.5 * (z3 - z1));
+    // условие сборки: (z1 + z3) = 2 * (z1 + z2) должно делиться на Zw;
+    // подбираем ближайшее подходящее z2
+    if Zw > 1 then
+      for k := 0 to Zw do
+        if ((2 * (z1 + z2 + k)) mod Zw) = 0 then
+        begin
+          z2 := z2 + k;
+          Break;
+        end
+        else if (z2 > k + 1) and (((2 * (z1 + z2 - k)) mod Zw) = 0) then
+        begin
+          z2 := z2 - k;
+          Break;
+        end;
+    z3 := z1 + 2 * z2; // условие соосности
+    z4 := Round((z3 - z1) / (1.4 + 1));
+    z5 := Round((z1) * (U - 0.8));
+    Uf := z1 / z2;
+  end;
   Procedure Proced3;
   BEGIN
-    z3:=round(z1*(U-1));
-    z2 := Round(0.5*(z3-z1));
-    z4:=Round((z3-z1)/(1.4+1));
-    z5:=Round((z1)*(U-0.8));
-
-      Uf := z1 / z2;
-
-      if Mn * (z1 + z2) / (2 * Cos(Bet)) >= aw then
+      if Mn * (z1 + z2) / (2 * Cos(Bet)) > aw + 1E-6 then
       begin
         Error := 20;
         Exit;
@@ -2492,7 +2611,11 @@ Var
 
 BEGIN
   Psi_bd := 0.5 * Psi_ba * (U + 1);
+  Proced0;
+  if Error <> 0 then
+    Exit;
   Case Metka of
+
     1:
       begin
         Proced1;
@@ -2891,13 +3014,17 @@ procedure CalculateCWheel.Wibor(a: Extended; b: TT1; N: byte; var Iw: byte);
 var
   i: integer;
 BEGIN
+  // выбор ближайшего стандартного значения, не меньшего a
+  // (таблица b упорядочена по возрастанию)
+  Iw := N;
   for i := 1 to N do
-    if a >= b[i] then
+    if b[i] >= a then
     begin
       Iw := i;
-      Exit; // goto 1
+      Exit;
     end;
 END;
+
 
 procedure CalculateCWheel.wiborTerm(mc: TSteelMark;
   var ArTermobr: ArrayTermobr);

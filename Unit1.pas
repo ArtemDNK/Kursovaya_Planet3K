@@ -562,7 +562,8 @@ begin
       Lines.Append('Проектное передаточное число  ' + floattostr(Input1.U));
       Lines.Append('Расчетный срок службы, час  ' + floattostr(Input1.Lh));
 
-      Lines.Append('Материал шестерни  ' + (ComboBox1.Text));
+      Lines.Append('Материал шестерни  ' + (Input1.mc1));
+
       Lines.Append('Термообработка шестерни ' + (HandleStr[Input1.Termobr1]));
 
       Lines.Append('Материал сателлита  ' + (Input1.mc2));
@@ -827,22 +828,28 @@ end;
 procedure TForm1.EditUClick(Sender: TObject);
 var
   FChild1: TForm4;
-  i9: integer;
   St: string;
+  ui: Extended;
+  osh: integer;
 begin
+  FChild1 := TForm4.Create(Self);
   try
-    FChild1 := TForm4.Create(Self);
     if FChild1.ShowModal = mrOK then
-      St := FChild1.EditU.Text;
-    for i9 := 0 to Length(St) do
-
-      if St[i9] = '.' then
-        St[i9] := ',';
-    EditU.Text := St;
-    clas.U := StrToFloat(St);
+    begin
+      // Val понимает только точку как десятичный разделитель
+      St := StringReplace(FChild1.EditU.Text, ',', '.', [rfReplaceAll]);
+      val(St, ui, osh);
+      if osh <> 0 then
+        ShowMessage('Введено не верное значение')
+      else
+      begin
+        clas.U := ui;
+        Input.U := ui;
+        EditU.Text := St;
+      end;
+    end;
   finally
     FChild1.Free;
-    FChild1 := nil;
   end;
 end;
 

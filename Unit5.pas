@@ -32,7 +32,10 @@ uses Unit1;
 
 procedure TForm5.Button10Click(Sender: TObject);
 begin
+  if TreeView1.Selected = nil then
+    Exit;
   case TreeView1.Selected.AbsoluteIndex of
+
     2:
       begin
         Form1.buttonNom_sx.Caption := '1';

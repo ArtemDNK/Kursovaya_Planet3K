@@ -34,30 +34,25 @@ uses Unit1;
 
 procedure TForm4.EditUChange(Sender: TObject);
 var
-  osh, i9: integer;
+  osh: integer;
   ui: Extended;
-  st: string;
 begin
-  st := EditU.Text;
-  for i9 := 0 to Length(st) do
-    if st[i] = '.' then
-      st[i] := ',';
-  EditU.Text := st;
-  val(EditU.Text, ui, osh);
-  clas.U := ui;
+  // Val понимает только точку как десятичный разделитель
+  val(StringReplace(EditU.Text, ',', '.', [rfReplaceAll]), ui, osh);
+  if osh <> 0 then
+    ShowMessage('Введено не верное значение')
+  else
+  begin
+    clas.U := ui;
+    Input.U := ui;
+  end;
 end;
 
 procedure TForm4.FormShow(Sender: TObject);
-var
-  i: integer;
-  str: string;
 begin
-  str := floattostr(Input.U);
-  for i := 0 to Length(str) do
-    if str[i] = ',' then
-      str[i] := '.';
-  EditU.Text := str;;
+  EditU.Text := StringReplace(floattostr(Input.U), ',', '.', [rfReplaceAll]);
   EditDeltaU.Text := floattostr(Input.DeltaU);
 end;
+
 
 end.
