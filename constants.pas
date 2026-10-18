@@ -3,27 +3,27 @@ unit constants;
 interface
 
 const
-  PatternProcess: array [0 .. 3] of string[9] = ('Поковка', 'Штамповка',
+  PatternProcess: array [0 .. 3] of string = ('Поковка', 'Штамповка',
     'Прокат', 'Отливка');
-  CogType: array [1 .. 3] of string[9] = ('Прямой', 'Косой', 'Шевронный');
-  Finish: array [0 .. 2] of string[12] = ('Фрезерование', 'Шлифование',
+  CogType: array [1 .. 3] of string = ('Прямой', 'Косой', 'Шевронный');
+  Finish: array [0 .. 2] of string = ('Фрезерование', 'Шлифование',
     'Полирование');
-  ToolStr: array [0 .. 2] of string[13] = ('Фреза', 'Долбяк новый',
+  ToolStr: array [0 .. 2] of string = ('Фреза', 'Долбяк новый',
     'Долбяк старый');
-  HandleStr: array [0 .. 8] of string[16] = ('AUTO', 'Улучшение',
+  HandleStr: array [0 .. 8] of string = ('AUTO', 'Улучшение',
     'Нормализация', 'Объемная закалка', 'Эакалка ТВЧ', 'Цементация', // 5
     'Нитроцементация', 'Азотирование', 'Отжиг');
-  LoadGraph: array [boolean] of string[11] = ('Типовой', 'Циклограмма');
-  GraphStr: array [boolean] of string[12] = ('Режим', 'Коэффициенты');
-  DistStr: array [boolean] of string[13] = ('Нестандартное', 'Стандартное');
-  LoadStr: array [0 .. 5] of string[22] = ('Постоянная нагрузка', 'Тяжелый ',
+  LoadGraph: array [boolean] of string = ('Типовой', 'Циклограмма');
+  GraphStr: array [boolean] of string = ('Режим', 'Коэффициенты');
+  DistStr: array [boolean] of string = ('Нестандартное', 'Стандартное');
+  LoadStr: array [0 .. 5] of string = ('Постоянная нагрузка', 'Тяжелый ',
     'Средний равновероятный', 'Средний нормальный', 'Легкий', 'Особолегкий');
-  roughness: array [0 .. 2] of string[22] = ('Ra1.6', 'Ra3.2', 'Ra6.3');
-  marca1: array [0 .. 24] of string[22] = ('12ХН2 ГОСТ 4543-71',
+  roughness: array [0 .. 2] of string = ('Ra1.6', 'Ra3.2', 'Ra6.3');
+  marca1: array [0 .. 24] of string = ('12ХН2 ГОСТ 4543-71',
     '12ХН3А ГОСТ 4543-71', '12Х2Н4А ГОСТ 4543-71', '15ХГНТА ГОСТ 4543-71',
     '18ХГТ ГОСТ 4543-71', '18Х2Н4ВА ГОСТ 4543-71', '20Х ГОСТ 4543-71',
     '20ХН ГОСТ 4543-71', '20ХН2М ГОСТ 4543-71', '20ХН3А ГОСТ 4543-71',
-    '20Х2Н4А ГОСТ 4543-71', '20ХГР ГОСТ 4543-71', '25ХГТМА ГОСТ 4543-7',
+    '20Х2Н4А ГОСТ 4543-71', '20ХГР ГОСТ 4543-71', '25ХГТМА ГОСТ 4543-71',
     '30ХГТ ГОСТ 4543-71', '25ХГМ ГОСТ 4543-71', '25ХГТ ГОСТ 4543-71',
     '30ХГТ ГОСТ 4543-71', '35ХМ ГОСТ 4543-71', '40 ГОСТ 1050-74',
     '40Х ГОСТ 4543-71', '40ХН ГОСТ 4543-71', '40ХФА ГОСТ 4543-71',
@@ -32,14 +32,15 @@ const
   p1min: Extended = 0.1;
   n1max: Extended = 10000;
   n1min: Extended = 10;
-  Umax: Extended = 15;
-  Umin: Extended = 1;
-  Zwmax: Extended = 4;
+  { передаточное отношение планетарной передачи 3K }
+  Umax: Extended = 1000;
+  Umin: Extended = 4;
+  { число сателлитов }
+  Zwmax: Extended = 6;
   Zwmin: Extended = 1;
   DeltaUMin: byte = 2;
   DeltaUMax: byte = 10;
-  TipzMin: word = 0;
-  TipzMax: word = 3;
+
 
 implementation
 

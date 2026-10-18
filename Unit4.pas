@@ -1,11 +1,11 @@
 unit Unit4;
 
+{ Окно ввода передаточного отношения и допуска на него }
+
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants,
-  Classes, Graphics,
-  Controls, Forms, Dialogs, StdCtrls, CALCULAT008;
+  SysUtils, Classes, Controls, Forms, Dialogs, StdCtrls;
 
 type
   TForm4 = class(TForm)
@@ -17,47 +17,31 @@ type
     Button2: TButton;
     procedure FormShow(Sender: TObject);
     procedure EditUChange(Sender: TObject);
-  private
-    { Private declarations }
-  public
-    { Public declarations }
   end;
 
 var
   Form4: TForm4;
-  clas1: CalculateCWheel;
 
 implementation
 
 uses Unit1;
 {$R *.dfm}
 
+{ Проверка введенного значения при выходе из поля }
 procedure TForm4.EditUChange(Sender: TObject);
 var
-  osh, i9: integer;
+  osh: integer;
   ui: Extended;
-  st: string;
 begin
-  st := EditU.Text;
-  for i9 := 0 to Length(st) do
-    if st[i] = '.' then
-      st[i] := ',';
-  EditU.Text := st;
-  val(EditU.Text, ui, osh);
-  clas.U := ui;
+  Val(StringReplace(EditU.Text, ',', '.', [rfReplaceAll]), ui, osh);
+  if osh <> 0 then
+    ShowMessage('Введено не верное значение');
 end;
 
 procedure TForm4.FormShow(Sender: TObject);
-var
-  i: integer;
-  str: string;
 begin
-  str := floattostr(Input.U);
-  for i := 0 to Length(str) do
-    if str[i] = ',' then
-      str[i] := '.';
-  EditU.Text := str;;
-  EditDeltaU.Text := floattostr(Input.DeltaU);
+  EditU.Text := StringReplace(FloatToStr(Input.U), ',', '.', [rfReplaceAll]);
+  EditDeltaU.Text := IntToStr(Input.DeltaU);
 end;
 
 end.
