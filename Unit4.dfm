@@ -26,7 +26,7 @@ object Form4: TForm4
     Top = 8
     Width = 163
     Height = 13
-    Caption = #1055#1088#1086#1077#1082#1090#1085#1086#1077' '#1087#1077#1088#1077#1076#1072#1090#1086#1095#1085#1086#1077' '#1095#1080#1089#1083#1086
+    Caption = #1055#1077#1088#1077#1076#1072#1090#1086#1095#1085#1086#1077' '#1086#1090#1085#1086#1096#1077#1085#1080#1077
   end
   object EditU: TEdit
     Left = 215
@@ -34,7 +34,7 @@ object Form4: TForm4
     Width = 33
     Height = 21
     TabOrder = 0
-    Text = '3.58'
+    Text = '40'
     OnExit = EditUChange
   end
   object EditDeltaU: TEdit

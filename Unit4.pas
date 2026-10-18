@@ -1,11 +1,11 @@
 unit Unit4;
 
+{ Окно ввода передаточного отношения и допуска на него }
+
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants,
-  Classes, Graphics,
-  Controls, Forms, Dialogs, StdCtrls, CALCULAT008;
+  SysUtils, Classes, Controls, Forms, Dialogs, StdCtrls;
 
 type
   TForm4 = class(TForm)
@@ -17,42 +17,31 @@ type
     Button2: TButton;
     procedure FormShow(Sender: TObject);
     procedure EditUChange(Sender: TObject);
-  private
-    { Private declarations }
-  public
-    { Public declarations }
   end;
 
 var
   Form4: TForm4;
-  clas1: CalculateCWheel;
 
 implementation
 
 uses Unit1;
 {$R *.dfm}
 
+{ Проверка введенного значения при выходе из поля }
 procedure TForm4.EditUChange(Sender: TObject);
 var
   osh: integer;
   ui: Extended;
 begin
-  // Val понимает только точку как десятичный разделитель
-  val(StringReplace(EditU.Text, ',', '.', [rfReplaceAll]), ui, osh);
+  Val(StringReplace(EditU.Text, ',', '.', [rfReplaceAll]), ui, osh);
   if osh <> 0 then
-    ShowMessage('Введено не верное значение')
-  else
-  begin
-    clas.U := ui;
-    Input.U := ui;
-  end;
+    ShowMessage('Введено не верное значение');
 end;
 
 procedure TForm4.FormShow(Sender: TObject);
 begin
-  EditU.Text := StringReplace(floattostr(Input.U), ',', '.', [rfReplaceAll]);
-  EditDeltaU.Text := floattostr(Input.DeltaU);
+  EditU.Text := StringReplace(FloatToStr(Input.U), ',', '.', [rfReplaceAll]);
+  EditDeltaU.Text := IntToStr(Input.DeltaU);
 end;
-
 
 end.
